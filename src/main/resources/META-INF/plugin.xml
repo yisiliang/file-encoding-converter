@@ -1,0 +1,52 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.yisiliang.idea.plugins.converter.file-encoding-converter</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>File Encoding Converter</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="yisiliang@foxmail.com" url="https://yisiliang.github.io/">Yi Siliang</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description>Convert file's encoding/charset, batch or single</description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <change-notes>
+        <![CDATA[
+            <h2>1.0</h2>
+            <ul>
+              <li>Convert file's encoding to UTF-8 or GB18030.</li>
+            </ul>
+            <h2>1.1</h2>
+            <ul>
+              <li>Add the function of choosing file types for encoding conversion.</li>
+            </ul>
+        ]]>
+    </change-notes>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+
+    </extensions>
+    <actions>
+        <action
+                id="com.yisiliang.idea.plugins.converter.ConvertFileAction"
+                class="com.yisiliang.idea.plugins.converter.ConvertFileAction"
+                text="Convert Encoding To"
+                description="Convert file's encoding">
+            <add-to-group group-id="EditorPopupMenu"/>
+            <add-to-group group-id="ProjectViewPopupMenu"/>
+            <add-to-group group-id="EditorTabPopupMenu"/>
+            <add-to-group group-id="ConsoleEditorPopupMenu"/>
+        </action>
+    </actions>
+</idea-plugin>
