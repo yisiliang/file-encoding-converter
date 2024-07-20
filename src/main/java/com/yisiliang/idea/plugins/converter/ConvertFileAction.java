@@ -46,6 +46,7 @@ public class ConvertFileAction extends AnAction {
             boolean ok = fileTypeSelectorDialog.showAndGet();
             if (ok) {
                 final Charset charset = fileTypeSelectorDialog.getSelectedCharset();
+                final boolean changeCharsetInFileContent = fileTypeSelectorDialog.getChangeCharsetInFileContent();
                 final Set<String> convertedFileTypes = fileTypeSelectorDialog.getSelectedFileTypes();
                 if (charset == null || convertedFileTypes.isEmpty()) {
                     Messages.showWarningDialog("Please selected at least one file type.", ConverterConstants.MESSAGE_TITLE);
@@ -53,7 +54,7 @@ public class ConvertFileAction extends AnAction {
                 }
                 Application application = ApplicationManager.getApplication();
                 FileEditorManager editorManager = FileEditorManager.getInstance(project);
-                application.runWriteAction(() -> convertFile(editorManager, virtualFile, charset, convertedFileTypes));
+                application.runWriteAction(() -> convertFile(editorManager, virtualFile, charset, convertedFileTypes, changeCharsetInFileContent));
             }
         } else {
             Messages.showWarningDialog("Current file [" + virtualFile.getName() + "] is not writable.", ConverterConstants.MESSAGE_TITLE);
@@ -74,11 +75,12 @@ public class ConvertFileAction extends AnAction {
         }
     }
 
-    private static void convertFile(FileEditorManager editorManager, VirtualFile virtualFile, Charset charset, Set<String> convertFileTypes) {
+    private static void convertFile(FileEditorManager editorManager, VirtualFile virtualFile, Charset charset,
+                                    Set<String> convertFileTypes, boolean changeCharsetInFileContent) {
         if (virtualFile.isDirectory()) {
             VirtualFile[] children = virtualFile.getChildren();
             for (VirtualFile child : children) {
-                convertFile(editorManager, child, charset, convertFileTypes);
+                convertFile(editorManager, child, charset, convertFileTypes, changeCharsetInFileContent);
             }
         } else {
             BytesEncodingDetect bytesEncodingDetect = new BytesEncodingDetect();
@@ -86,11 +88,12 @@ public class ConvertFileAction extends AnAction {
                     && virtualFile.getExtension() != null
                     && convertFileTypes.contains(virtualFile.getExtension().toLowerCase())) {
                 try {
+                    String fileType = virtualFile.getExtension().toLowerCase();
                     byte[] oriBytes = virtualFile.contentsToByteArray(false);
                     Charset detectEncoding = bytesEncodingDetect.detectEncoding(oriBytes);
                     if (!charset.equals(detectEncoding)) {
                         LOGGER.info("convert " + virtualFile + " from " + detectEncoding + " to " + charset);
-                        byte[] convertBytes = ConvertUtils.convert(detectEncoding, charset, oriBytes);
+                        byte[] convertBytes = ConvertUtils.convert(fileType, detectEncoding, charset, oriBytes, changeCharsetInFileContent);
                         virtualFile.setCharset(charset);
                         virtualFile.setBinaryContent(convertBytes);
                         VfsUtil.markDirtyAndRefresh(false, false, false, virtualFile);

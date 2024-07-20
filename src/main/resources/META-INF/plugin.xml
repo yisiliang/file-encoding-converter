@@ -37,6 +37,10 @@
             <ul>
               <li>Change the Compatibility Range.</li>
             </ul>
+            <h2>1.4</h2>
+            <ul>
+              <li>Replace the charset in the file content if file types are jsp, html or xml.</li>
+            </ul>
         ]]>
     </change-notes>
 
