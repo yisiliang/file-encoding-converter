@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.yisiliang.idea.plugins.converter"
-version = "1.1"
+version = "1.3"
 
 repositories {
     mavenCentral()
@@ -37,7 +37,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("222.*")
+        sinceBuild.set("213")
         untilBuild.set("")
     }
 
