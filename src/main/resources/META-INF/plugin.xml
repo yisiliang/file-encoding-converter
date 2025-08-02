@@ -41,6 +41,10 @@
             <ul>
               <li>Replace the charset in the file content if file types are jsp, html or xml.</li>
             </ul>
+            <h2>1.5</h2>
+            <ul>
+              <li>Remove Internal class usage.</li>
+            </ul>
         ]]>
     </change-notes>
 
