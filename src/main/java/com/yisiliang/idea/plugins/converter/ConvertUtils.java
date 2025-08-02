@@ -1,7 +1,8 @@
 package com.yisiliang.idea.plugins.converter;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.vfs.CharsetToolkit;
+import com.intellij.util.ArrayUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -12,9 +13,22 @@ import java.util.regex.Pattern;
 
 public class ConvertUtils {
     private static final Logger LOGGER = Logger.getInstance(ConvertUtils.class);
+    private static final byte[] UTF8_BOM;
+    private static final byte[] UTF16LE_BOM;
+    private static final byte[] UTF16BE_BOM;
+    private static final byte[] UTF32BE_BOM;
+    private static final byte[] UTF32LE_BOM;
+
+    static {
+        UTF8_BOM = new byte[]{-17, -69, -65};
+        UTF16LE_BOM = new byte[]{-1, -2};
+        UTF16BE_BOM = new byte[]{-2, -1};
+        UTF32BE_BOM = new byte[]{0, 0, -2, -1};
+        UTF32LE_BOM = new byte[]{-1, -2, 0, 0};
+    }
 
     public static byte[] convert(String fileType, Charset source, Charset target, byte[] sourceBytes, boolean changeCharsetInFileContent) {
-        int bomLen = CharsetToolkit.getBOMLength(sourceBytes, source);
+        int bomLen = getBOMLength(sourceBytes, source);
         CharBuffer charBuffer = source.decode(ByteBuffer.wrap(sourceBytes, bomLen, sourceBytes.length - bomLen));
         ByteBuffer byteBuffer = target.encode(charBuffer);
         byte[] convertBytes = byteBuffer.array();
@@ -27,6 +41,41 @@ public class ConvertUtils {
             tmpBytes = converted.getBytes(target);
         }
         return tmpBytes;
+    }
+
+    private static int getBOMLength(byte @NotNull [] content, @NotNull Charset charset) {
+        if (charset.name().contains("UTF-8") && hasUTF8Bom(content)) {
+            return UTF8_BOM.length;
+        } else if (hasUTF32BEBom(content)) {
+            return UTF32BE_BOM.length;
+        } else if (hasUTF32LEBom(content)) {
+            return UTF32LE_BOM.length;
+        } else if (hasUTF16LEBom(content)) {
+            return UTF16LE_BOM.length;
+        } else {
+            return hasUTF16BEBom(content) ? UTF16BE_BOM.length : 0;
+        }
+    }
+
+
+    private static boolean hasUTF8Bom(byte @NotNull [] bom) {
+        return ArrayUtil.startsWith(bom, UTF8_BOM);
+    }
+
+    private static boolean hasUTF16LEBom(byte @NotNull [] bom) {
+        return ArrayUtil.startsWith(bom, UTF16LE_BOM);
+    }
+
+    private static boolean hasUTF16BEBom(byte @NotNull [] bom) {
+        return ArrayUtil.startsWith(bom, UTF16BE_BOM);
+    }
+
+    private static boolean hasUTF32BEBom(byte @NotNull [] bom) {
+        return ArrayUtil.startsWith(bom, UTF32BE_BOM);
+    }
+
+    private static boolean hasUTF32LEBom(byte @NotNull [] bom) {
+        return ArrayUtil.startsWith(bom, UTF32LE_BOM);
     }
 
     /**
@@ -51,7 +100,7 @@ public class ConvertUtils {
      * @return 编码被替换后内容
      */
     private static String replaceCharsetInContent(String fileType, String converted, Charset source, Charset target) {
-        if (converted == null || converted.isEmpty() || converted.isBlank()) {
+        if (converted == null || converted.isBlank()) {
             return converted;
         }
         if (ConverterConstants.FILE_TYPE_JSP.equalsIgnoreCase(fileType)) {

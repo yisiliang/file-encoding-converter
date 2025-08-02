@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.yisiliang.idea.plugins.converter"
-version = "1.4"
+version = "1.5-SNAPSHOT"
 
 repositories {
     mavenCentral()
